@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
@@ -16,7 +17,7 @@ import dev.stenglein.connectivitycontroller.ui.theme.ConnectivityControllerTheme
 
 
 @Composable
-fun ThreeButtonsSection(
+fun ThreeButtonsSectionEntry(
     title: String,
     description: String,
     button1Text: String,
@@ -32,13 +33,28 @@ fun ThreeButtonsSection(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(onClick = button1OnClick, modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = button1OnClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag(button1Text + title)  // E.g. "EnableWiFi"
+            ) {
                 Text(button1Text)
             }
-            OutlinedButton(onClick = button2OnClick, modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = button2OnClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag(button2Text + title)
+            ) {
                 Text(button2Text)
             }
-            OutlinedButton(onClick = button3OnClick, modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = button3OnClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag(button3Text + title)
+            ) {
                 Text(button3Text)
             }
         }
@@ -50,7 +66,7 @@ fun ThreeButtonsSection(
 @Composable
 fun SectionThreeButtonsPreview() {
     ConnectivityControllerTheme {
-        ThreeButtonsSection(
+        ThreeButtonsSectionEntry(
             title = "Title",
             description = "Description " + LoremIpsum(30).values.joinToString(" "),
             button1Text = "Button 1",

@@ -159,7 +159,7 @@ private fun TestingSection(
     changeBluetoothState: (ConnectivityAction) -> Unit
 ) {
     BaseSection(headline = "Testing") {
-        ThreeButtonsSection(
+        ThreeButtonsSectionEntry(
             title = "WiFi",
             description = "Test the app's control over WiFi by enabling, disabling, or toggling.",
             button1Text = "Enable",
@@ -170,7 +170,7 @@ private fun TestingSection(
             button3OnClick = { changeWiFiState(ConnectivityAction.TOGGLE) }
         )
 
-        ThreeButtonsSection(
+        ThreeButtonsSectionEntry(
             title = "Bluetooth",
             description = "Test the app's control over Bluetooth by enabling, disabling, or toggling.",
             button1Text = "Enable",

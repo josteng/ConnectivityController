@@ -116,6 +116,10 @@ class MainActivityUITest {
             MainUi(viewModel = viewModel, requestBluetoothPermission = { }, openUrlInBrowser = { })
         }
 
+        // Grant bluetooth permission as we want to test the bluetooth buttons
+        viewModel.updateBluetoothPermissionState(true)
+
+        // Initial state is disabled
         runBlocking {
             fakeConnectivityRepository.changeBluetoothState(ConnectivityAction.DISABLE)
             assert(!fakeConnectivityRepository.bluetoothState)

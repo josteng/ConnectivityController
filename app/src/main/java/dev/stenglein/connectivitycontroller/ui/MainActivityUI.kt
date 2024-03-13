@@ -83,7 +83,8 @@ fun MainUi(
                 {
                     TestingSection(
                         changeWiFiState = viewModel::changeWifiState,
-                        changeBluetoothState = viewModel::changeBluetoothState
+                        changeBluetoothState = viewModel::changeBluetoothState,
+                        !uiState.showMissingBluetoothPermission
                     )
                 })
         )
@@ -156,7 +157,8 @@ fun UsageSection(
 @Composable
 private fun TestingSection(
     changeWiFiState: (ConnectivityAction) -> Unit,
-    changeBluetoothState: (ConnectivityAction) -> Unit
+    changeBluetoothState: (ConnectivityAction) -> Unit,
+    enable : Boolean = true
 ) {
     BaseSection(headline = "Testing") {
         ThreeButtonsSectionEntry(
@@ -178,7 +180,8 @@ private fun TestingSection(
             button2Text = "Disable",
             button2OnClick = { changeBluetoothState(ConnectivityAction.DISABLE) },
             button3Text = "Toggle",
-            button3OnClick = { changeBluetoothState(ConnectivityAction.TOGGLE) }
+            button3OnClick = { changeBluetoothState(ConnectivityAction.TOGGLE) },
+            enabled = enable
         )
     }
 }

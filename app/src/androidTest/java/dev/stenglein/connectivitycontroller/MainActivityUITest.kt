@@ -1,6 +1,8 @@
 package dev.stenglein.connectivitycontroller
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -154,5 +156,48 @@ class MainActivityUITest {
         runBlocking {
             assert(waitForStateChange({ fakeConnectivityRepository.bluetoothState }, false))
         }
+    }
+
+    @Test
+    fun mainUI_noBluetoothOptions_whenBluetoothNotSupported() {
+        // Bluetooth is not supported
+        fakeConnectivityRepository.setBluetoothSupported(false)
+        val viewModel = MainViewModel(fakeConnectivityRepository)
+        composeTestRule.setContent {
+            MainUi(viewModel = viewModel, requestBluetoothPermission = { }, openUrlInBrowser = { })
+        }
+
+        composeTestRule.onNodeWithTag("EnableBluetooth").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Bluetooth is not supported on this device.").assertExists()
+        composeTestRule.onNodeWithText("Grant Bluetooth permission").assertDoesNotExist()
+        composeTestRule.onNodeWithText("All permissions granted").assertDoesNotExist()
+    }
+
+    @Test
+    fun mainUI_showBluetoothRequestAndBluetoothButtons_whenBluetoothSupported() {
+        // Bluetooth is supported but permission is not granted
+        fakeConnectivityRepository.setBluetoothSupported(true)
+        val viewModel = MainViewModel(fakeConnectivityRepository)
+
+        composeTestRule.setContent {
+            MainUi(viewModel = viewModel, requestBluetoothPermission = { }, openUrlInBrowser = { })
+        }
+
+        composeTestRule.onNodeWithTag("EnableBluetooth").assertExists()
+        composeTestRule.onNodeWithTag("EnableBluetooth").assertIsNotEnabled()
+        composeTestRule.onNodeWithText("Bluetooth is not supported on this device.")
+            .assertDoesNotExist()
+        composeTestRule.onNodeWithText("Grant Bluetooth permission").assertExists()
+        composeTestRule.onNodeWithText("All permissions granted").assertDoesNotExist()
+
+        // Bluetooth is supported and permission is granted
+        viewModel.updateBluetoothPermissionState(true)
+
+        composeTestRule.onNodeWithTag("EnableBluetooth").assertExists()
+        composeTestRule.onNodeWithTag("EnableBluetooth").assertIsEnabled()
+        composeTestRule.onNodeWithText("Bluetooth is not supported on this device.")
+            .assertDoesNotExist()
+        composeTestRule.onNodeWithText("Grant Bluetooth permission").assertDoesNotExist()
+        composeTestRule.onNodeWithText("All permissions granted").assertExists()
     }
 }

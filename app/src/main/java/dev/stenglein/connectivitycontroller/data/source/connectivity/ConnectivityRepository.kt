@@ -9,4 +9,6 @@ interface ConnectivityRepository {
     suspend fun changeWifiState(action: ConnectivityAction)
 
     suspend fun changeBluetoothState(action: ConnectivityAction)
+
+    fun isBluetoothSupported(): Boolean
 }

@@ -7,7 +7,8 @@ import dev.stenglein.connectivitycontroller.data.ConnectivityAction
 
 
 class ConnectivityRepositoryImpl private constructor(
-    private val wifiManager: WifiManager, private val bluetoothAdapter: BluetoothAdapter
+    private val wifiManager: WifiManager,
+    private val bluetoothAdapter: BluetoothAdapter?  // Null if Bluetooth is not supported
 ) : ConnectivityRepository {
     companion object {
         /** Create a new instance of [ConnectivityRepositoryImpl]. */
@@ -32,13 +33,20 @@ class ConnectivityRepositoryImpl private constructor(
         val targetState = when (action) {
             ConnectivityAction.ENABLE -> true
             ConnectivityAction.DISABLE -> false
-            ConnectivityAction.TOGGLE -> !bluetoothAdapter.isEnabled
+            ConnectivityAction.TOGGLE -> {
+                val currentState = bluetoothAdapter?.isEnabled ?: return
+                !currentState
+            }
         }
 
         if (targetState) {
-            bluetoothAdapter.enable()
+            bluetoothAdapter?.enable()
         } else {
-            bluetoothAdapter.disable()
+            bluetoothAdapter?.disable()
         }
+    }
+
+    override fun isBluetoothSupported(): Boolean {
+        return bluetoothAdapter != null
     }
 }

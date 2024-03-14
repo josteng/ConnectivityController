@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -76,7 +77,7 @@ fun MainUi(
             sections = listOf(
                 {
                     UsageSection(
-                        showRequestBluetoothPermission = uiState.showMissingBluetoothPermission,
+                        bluetoothUiState = uiState.bluetoothUiState,
                         requestBluetoothPermission = requestBluetoothPermission
                     )
                 },
@@ -84,7 +85,7 @@ fun MainUi(
                     TestingSection(
                         changeWiFiState = viewModel::changeWifiState,
                         changeBluetoothState = viewModel::changeBluetoothState,
-                        !uiState.showMissingBluetoothPermission
+                        bluetoothUiState = uiState.bluetoothUiState
                     )
                 })
         )
@@ -127,7 +128,7 @@ private fun MainTopAppBar(
 
 @Composable
 fun UsageSection(
-    showRequestBluetoothPermission: Boolean,
+    bluetoothUiState: BluetoothUiState,
     requestBluetoothPermission: () -> Unit,
 ) {
     BaseSection(headline = "Usage overview") {
@@ -140,13 +141,15 @@ fun UsageSection(
             description = "This app requires permissions to control WiFi and Bluetooth. On Android 13 and later, the permission to control Bluetooth needs to be granted manually."
         ) {
             AnimatedContent(
-                targetState = showRequestBluetoothPermission,
+                targetState = bluetoothUiState,
                 label = "bluetooth permission granted"
-            ) { showRequestBluetoothPermission ->
-                if (showRequestBluetoothPermission) {
-                    MissingBluetoothPermissionCard(requestBluetoothPermission)
-                } else {
-                    AllPermissionsGrantedCard()
+            ) { bluetoothUiState ->
+                when (bluetoothUiState) {
+                    BluetoothUiState.HIDE_BLUETOOTH_OPTIONS -> BluetoothUnsupportedCard()
+                    BluetoothUiState.SHOW_PERMISSION_REQUEST ->
+                        MissingBluetoothPermissionCard(requestBluetoothPermission)
+
+                    BluetoothUiState.SHOW_BLUETOOTH_OPTIONS -> AllPermissionsGrantedCard()
                 }
             }
         }
@@ -158,7 +161,7 @@ fun UsageSection(
 private fun TestingSection(
     changeWiFiState: (ConnectivityAction) -> Unit,
     changeBluetoothState: (ConnectivityAction) -> Unit,
-    enable : Boolean = true
+    bluetoothUiState: BluetoothUiState,
 ) {
     BaseSection(headline = "Testing") {
         ThreeButtonsSectionEntry(
@@ -172,17 +175,24 @@ private fun TestingSection(
             button3OnClick = { changeWiFiState(ConnectivityAction.TOGGLE) }
         )
 
-        ThreeButtonsSectionEntry(
-            title = "Bluetooth",
-            description = "Test the app's control over Bluetooth by enabling, disabling, or toggling.",
-            button1Text = "Enable",
-            button1OnClick = { changeBluetoothState(ConnectivityAction.ENABLE) },
-            button2Text = "Disable",
-            button2OnClick = { changeBluetoothState(ConnectivityAction.DISABLE) },
-            button3Text = "Toggle",
-            button3OnClick = { changeBluetoothState(ConnectivityAction.TOGGLE) },
-            enabled = enable
-        )
+        if (bluetoothUiState == BluetoothUiState.HIDE_BLUETOOTH_OPTIONS) {
+            SectionEntry(
+                title = "Bluetooth",
+                description = "Bluetooth is not supported on this device."
+            )
+        } else {
+            ThreeButtonsSectionEntry(
+                title = "Bluetooth",
+                description = "Test the app's control over Bluetooth by enabling, disabling, or toggling.",
+                button1Text = "Enable",
+                button1OnClick = { changeBluetoothState(ConnectivityAction.ENABLE) },
+                button2Text = "Disable",
+                button2OnClick = { changeBluetoothState(ConnectivityAction.DISABLE) },
+                button3Text = "Toggle",
+                button3OnClick = { changeBluetoothState(ConnectivityAction.TOGGLE) },
+                enabled = bluetoothUiState == BluetoothUiState.SHOW_BLUETOOTH_OPTIONS
+            )
+        }
     }
 }
 
@@ -221,6 +231,25 @@ private fun MissingBluetoothPermissionCard(requestBluetoothPermission: () -> Uni
             }
             Text("If the permission request using the button above is unsuccessful, you can alternatively use the ADB tools on your computer with the following command: 'adb shell pm grant dev.stenglein.connectivitycontroller android.permission.BLUETOOTH_CONNECT'.")
 
+        }
+    }
+}
+
+@Composable
+private fun BluetoothUnsupportedCard() {
+    ElevatedCard {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = "Info"
+            )
+            Text("Bluetooth is not supported on this device")
         }
     }
 }

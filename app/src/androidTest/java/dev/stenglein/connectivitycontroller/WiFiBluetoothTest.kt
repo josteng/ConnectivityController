@@ -13,7 +13,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
+/**
+ * Tests must run on a device with WiFi and Bluetooth support.
+ */
 @RunWith(AndroidJUnit4::class)
 class WiFiBluetoothTest {
 

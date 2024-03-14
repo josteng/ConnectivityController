@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import dagger.hilt.android.AndroidEntryPoint
+import dev.stenglein.connectivitycontroller.ui.BluetoothUiState
 import dev.stenglein.connectivitycontroller.ui.MainUi
 import dev.stenglein.connectivitycontroller.ui.MainViewModel
 
@@ -63,6 +64,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkForBluetoothPermission() {
+        // Do not check if Bluetooth is not supported or if the permission is already granted
+        if (viewModel.uiState.value.bluetoothUiState != BluetoothUiState.SHOW_PERMISSION_REQUEST) {
+            return
+        }
+
         val isPermissionGranted = ActivityCompat.checkSelfPermission(
             this, Manifest.permission.BLUETOOTH_CONNECT
         ) == PackageManager.PERMISSION_GRANTED

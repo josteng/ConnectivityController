@@ -15,10 +15,15 @@ import javax.inject.Inject
 
 data class MainUiState(
     val userMessage: String? = null,
-    // Whether to show the missing bluetooth permission section or the Bluetooth section
-    val showMissingBluetoothPermission: Boolean = true,
+    val bluetoothUiState: BluetoothUiState = BluetoothUiState.HIDE_BLUETOOTH_OPTIONS,
     val showInfoDialog: Boolean = false
 )
+
+enum class BluetoothUiState {
+    SHOW_PERMISSION_REQUEST,  // If bluetooth is supported but permission is missing
+    SHOW_BLUETOOTH_OPTIONS,  // If bluetooth is supported and permission is granted
+    HIDE_BLUETOOTH_OPTIONS  // If bluetooth is not supported
+}
 
 @HiltViewModel
 @Stable  // Reduce recompositions when passing ViewModel down to other composables
@@ -28,6 +33,17 @@ class MainViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState = _uiState.asStateFlow()
+
+    init {
+        _uiState.update {
+            it.copy(
+                bluetoothUiState =
+                if (connectivityRepository.isBluetoothSupported())
+                    BluetoothUiState.SHOW_PERMISSION_REQUEST  // Set permission in activity if granted
+                else BluetoothUiState.HIDE_BLUETOOTH_OPTIONS
+            )
+        }
+    }
 
     fun addSnackbarMessage(message: String) = _uiState.update { it.copy(userMessage = message) }
 
@@ -46,7 +62,17 @@ class MainViewModel @Inject constructor(
     }
 
     fun updateBluetoothPermissionState(hasPermission: Boolean) {
-        _uiState.update { it.copy(showMissingBluetoothPermission = !hasPermission) }
+        if (_uiState.value.bluetoothUiState == BluetoothUiState.HIDE_BLUETOOTH_OPTIONS) {
+            addSnackbarMessage("Error: Tried to update Bluetooth permission state when Bluetooth is unsupported")
+        } else {
+            _uiState.update {
+                it.copy(
+                    bluetoothUiState =
+                    if (hasPermission) BluetoothUiState.SHOW_BLUETOOTH_OPTIONS
+                    else BluetoothUiState.SHOW_PERMISSION_REQUEST
+                )
+            }
+        }
     }
 
     fun showInfoDialog() {

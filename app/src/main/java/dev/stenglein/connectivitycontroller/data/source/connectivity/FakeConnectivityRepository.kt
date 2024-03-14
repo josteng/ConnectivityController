@@ -13,6 +13,8 @@ class FakeConnectivityRepository : ConnectivityRepository {
     var bluetoothState: Boolean = false
         private set
 
+    private var isBluetoothSupported: Boolean = true
+
     override suspend fun changeWifiState(action: ConnectivityAction) {
         wifiState = when (action) {
             ConnectivityAction.ENABLE -> true
@@ -22,10 +24,22 @@ class FakeConnectivityRepository : ConnectivityRepository {
     }
 
     override suspend fun changeBluetoothState(action: ConnectivityAction) {
+        if (!isBluetoothSupported) {
+            return
+        }
+
         bluetoothState = when (action) {
             ConnectivityAction.ENABLE -> true
             ConnectivityAction.DISABLE -> false
             ConnectivityAction.TOGGLE -> !bluetoothState
         }
+    }
+
+    override fun isBluetoothSupported(): Boolean {
+        return isBluetoothSupported
+    }
+
+    fun setBluetoothSupported(supported: Boolean) {
+        isBluetoothSupported = supported
     }
 }

@@ -87,8 +87,6 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.BLUETOOTH_CONNECT
             )
         ) {
-            requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
-        } else {
             Toast.makeText(
                 this,
                 "Go to Permissions -> Nearby devices -> Allow to enable Bluetooth",
@@ -100,6 +98,8 @@ class MainActivity : ComponentActivity() {
             val uri = Uri.fromParts("package", packageName, null)
             intent.data = uri
             startActivity(intent)
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
         }
     }
 

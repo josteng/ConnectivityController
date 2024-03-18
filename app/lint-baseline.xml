@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues name="AGP (8.3.0)" by="lint 8.3.0" client="gradle" dependencies="false" format="6"
+    type="baseline" variant="fatal" version="8.3.0">
+
+    <issue errorLine1="        targetSdk = 28"
+        errorLine2="        ~~~~~~~~~~~~~~"
+        id="ExpiredTargetSdkVersion" message="Google Play requires that apps target API level 33 or higher.">
+        <location column="9" file="build.gradle.kts" line="15" />
+    </issue>
+
+</issues>

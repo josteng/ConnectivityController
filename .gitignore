@@ -28,3 +28,8 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Baseline release and baseline profiles
+/app/release/baselineProfiles/0/*.dm
+/app/release/baselineProfiles/1/*.dm
+/app/release/output-metadata.json

@@ -14,13 +14,23 @@ android {
         minSdk = 24
         targetSdk = 28
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "dev.stenglein.connectivitycontroller.util.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        base {
+            archivesName.set("ConnectivityController-$versionCode-v$versionName")
+        }
+    }
+
+    lint {
+        // For ignoring target sdk error when building
+        // Update with gradlew updateLintBaseline
+        baseline = file("lint-baseline.xml")
     }
 
     buildTypes {
@@ -48,6 +58,33 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("pixel8proapi34") {
+                    device = "Pixel 8 Pro"
+                    apiLevel = 34
+                    systemImageSource = "google"
+                }
+                create("pixel6api32") {
+                    device = "Pixel 6"
+                    apiLevel = 32
+                    systemImageSource = "google"
+                }
+            }
+
+            // Run tests with gradle defaultGroupDebugAndroidTest
+            groups {
+                // One device after Bluetooth access was restricted and one before
+                // Do not test unsupported devices (simple UI test for this)
+                create("default") {
+                    targetDevices.add(devices["pixel8proapi34"])
+                    targetDevices.add(devices["pixel6api32"])
+                }
+            }
         }
     }
 }
